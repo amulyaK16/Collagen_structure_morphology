@@ -9,33 +9,17 @@ import matplotlib.pyplot as plt
 from PIL import Image, ImageFilter, ImageDraw
 import pyfeats
 
-#from PIL import ImageFilter
-#example from: https://github.com/tranleanh/wiener-filter-image-restoration/blob/master/Wiener_Filter.py
-#def wiener_filter(img, kernel, K):
-#	kernel /= np.sum(kernel)
-#	dummy = np.copy(img)
-#	dummy = fft2(dummy)
-#	kernel = fft2(kernel, s = img.shape)
-#	kernel = np.conj(kernel) / (np.abs(kernel) ** 2 + K)
-#	dummy = dummy * kernel
-#	dummy = np.abs(ifft2(dummy))
-#	return dummy
-#def gaussian_kernel(kernel_size = 5):
-#	h = gaussian(kernel_size, kernel_size / 25).reshape(kernel_size, 1)
-#	h = np.dot(h, h.transpose())
-#	h /= np.sum(h)
-#	return h
-#open image
+
 image=Image.open("data/Snap-1188_SHG_mouseLunhFresh.jpg")
 #image=Image.open("Experiment-745_good.jpg")
 
 #show image
-image.show()
+#image.show()
 
 #converting to grayscale
 #L stands for grayscale (luminance)
 im_gray=image.convert("L")
-im_gray.show()
+#im_gray.show()
 #example of showing the image properties
 #width, height=image.size
 #print("Image size:", width, "x", height)
@@ -48,7 +32,7 @@ im_adjust=exposure.rescale_intensity(image_array, in_range='image', out_range=np
 #Convert the adjusted numpy array back to PIL image
 im_adjust_pil= Image.fromarray(im_adjust)
 #show the adjusted image
-im_adjust_pil.show()
+#im_adjust_pil.show()
 
 #Denoising
 #wienerFiltIm=restoration.wiener(image_array, 5, 5) #error
@@ -65,10 +49,18 @@ im_adjust_pil.show()
 #Apply median filter
 median= im_adjust_pil.filter(ImageFilter.ModeFilter(size = 3)) 
 median.show()
-
+median_array=np.array(median)
 #FOS and SOS
-
+# Detecting Edges on the Image using the argument ImageFilter.FIND_EDGES
+#https://realpython.com/image-processing-with-the-python-pillow-library/
+mask = median.filter(ImageFilter.FIND_EDGES)
+mask.show()
+mask_array=np.array(mask)
+features = {}
+features['A_FOS'] = pyfeats.fos(median_array, mask_array)
+print(features)
 #First Order Statistics
+#create own mask using edge detection and binary mask
 #https://github.com/giakou4/pyfeats
 #Mean
 
