@@ -53,20 +53,42 @@ median_array=np.array(median)
 #FOS and SOS
 # Detecting Edges on the Image using the argument ImageFilter.FIND_EDGES
 #https://realpython.com/image-processing-with-the-python-pillow-library/
-mask = median.filter(ImageFilter.FIND_EDGES)
-mask.show()
-mask_array=np.array(mask)
-features = {}
-features['A_FOS'] = pyfeats.fos(median_array, mask_array)
-print(features)
+#mask = median.filter(ImageFilter.FIND_EDGES)
+#mask.show()
+#mask_array=np.array(mask)
+#features = {}
+#features['A_FOS'] = pyfeats.fos(median_array, mask_array)
+#print(features)
 #First Order Statistics
 #create own mask using edge detection and binary mask
 #https://github.com/giakou4/pyfeats
+
+#get histogram (CREATE HISTOGRAM Properly, make it for a specific roi)
+hist,bin=np.histogram(median_array.ravel(),256, [0,255])
+plt.xlim([0,255])
+plt.plot(hist)
+plt.title('histogram of filtered image')
+
+plt.show()
+
+#calculate features
+features=np.zeros(4, np.double)
+#set bin range
+bins=(255-0) + 1
+#np.arange returns evenly spaced values within a given interval
+i=np.arange(0,bins) 
+
 #Mean
+features[0]=np.dot(i,hist)
 
 #Standard Deviation
+features[1]=np.sqrt(sum(np.multiply(((i-features[0])**2),hist)))
 #Kurtosis
+features[2]=sum(np.multiply(((i-features[0])/features[1])**4,hist))
 #Skew
-
+features[3]=sum(np.multiply(((i-features[0])/features[1])**3,hist))
+print("mean, std dev, kurtosis, skewness")
+print("-------------------------------")
+print(features)
 #close image
 image.close()
